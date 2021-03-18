@@ -1,0 +1,129 @@
+.modal {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0, 0.5);
+  display: flex;
+  align-content: flex-end;
+  justify-content: flex-end;
+
+  .cart-list {
+    background: $whitesmoke;
+    padding: 20px;
+    width: 500px;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+
+    &__header {
+      height: 20px;
+      display: flex;
+      padding: 20px 0;
+      span {
+        width: 50%;
+      }
+      
+      .header-btn {
+        border-radius: 50px;
+        border: 1px solid $silver;
+        cursor: pointer;
+        padding: 5px 10px;
+        font-weight: bold;
+      }
+
+      .header-text {
+        color: $silver;
+        font-weight: bold;
+      }
+
+    }
+    .currency-options {
+      padding: 10px 0;
+
+      select {
+        height: 35px;
+        width: 70px;
+        padding: 10px;
+        border: unset;
+      }
+    }
+
+    &__body {
+      overflow: scroll;
+
+      .cart-item {
+        display: flex;
+        flex-direction: column;
+        background: $white;
+        height: 100px;
+        padding: 15px 10px;
+        margin-bottom: 10px;
+
+        &__title {
+          display: flex;
+          justify-content: space-between;
+          flex-basis: 50%;
+
+          .close {
+            color: red;
+            height: 20px;
+          }
+        }
+
+        &__body, .quantity-btn {
+          display: flex;
+          justify-content: space-between;
+          align-items:flex-end;
+    
+          span > img {
+            width: 50px;
+            height: 50px;
+          }
+        }
+
+        .quantity-btn {
+          flex-basis: 15%;
+          border: 1px solid $silver;
+          font-size: large;
+
+          button {
+            border: unset;
+            background: none;
+            cursor: pointer;
+            font-size: large;
+          }
+        }
+      }
+      
+    }
+
+    &__footer {
+      display: flex;
+      flex-direction: column;
+
+      .cart-total {
+        display: flex;
+        justify-content: space-between;
+        padding: 20px 0;
+        border-top: 1px solid darkslategray;
+      }
+
+      .subscription, .ckeckout {
+        height: 50px;
+        width: 100%;
+        margin-bottom: 10px;
+      }
+
+      .subscription {
+        background: $white;
+        color: black;
+        border: 1px solid $darkslategray;
+      }
+
+      .ckeckout{
+        background-color: $darkslategray;
+        color: $whitesmoke;
+      }
+    }
+  }
+}
