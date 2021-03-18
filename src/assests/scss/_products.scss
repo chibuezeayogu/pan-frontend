@@ -1,0 +1,52 @@
+.product-list {
+  display: flex;
+  background: $gainsboro;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  width: 100%;
+  margin: 0 auto;
+
+  .product-item {
+    text-align: center;
+    margin: 60px 0;
+    width: 30%;
+    height: 70%;
+
+    &__price  {
+      align-items: center;
+    }
+
+    &__title {
+      align-items: center;
+      padding-bottom: 5px;
+    }
+
+    &__image {
+      padding-bottom: 30px;
+
+      img { 
+        height: 15vh;
+        width: 10vw;
+      }
+    }
+
+    &__btn {
+      padding-top: 20px;
+
+      button {
+        height: 30px;
+        width: 120px;
+        background-color: $darkslategray;
+        color: $white;
+        border: unset;
+        font-size: 12px;
+        cursor: pointer;
+      }
+
+      .remove {
+        background: $red;
+      }
+    }
+  }
+}
