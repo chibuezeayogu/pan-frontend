@@ -2,56 +2,54 @@ import React, { useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
 import ProductItem from "./ProductItem";
 import { Product }  from '../../types'
-import { findAndUpdate, updateQuantity, updateCartPrice } from "../../util/index"
+import { updateQuantity, updateCartPrice } from "../../util/index"
 import { LOAD_PRODUCTS } from "../../graphQL/Queries"
 import CartList from "../cart/CartList";
 
 const ProductList = (): JSX.Element => {
   const [currency, setCurrency] = useState<string>("NGN");
-  const { error, loading, data } = useQuery(LOAD_PRODUCTS, { variables: { currency: currency }});
+  const { error, loading, data } = useQuery(LOAD_PRODUCTS, { variables: { currency: currency }, fetchPolicy: "no-cache"});
   const [carts, setCarts] = useState<Product[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
   const [toggleCart, setToggleCart] = useState<boolean>(false);
 
   useEffect(() => {
     if (data) {
-      // setProducts(data.products);
-      setCarts(updateCartPrice(carts, data.products))
-    } 
-  }, [data, carts]);
+      setCarts(updateCartPrice(carts, data.products));
+    }
+  }, [carts, data]);
 
 
-  const addToCart = (product: Product): void => {
-    // setProducts(findAndUpdate(product, products, true))
-    const cartItem = carts.find(el => el.id === product.id)
-    if (cartItem) {
-      setCarts(updateQuantity(product, carts, "Add"));
+ const addToCart = (productId: number): void => {
+    const cartItem = data.products.find(el => el.id == productId);
+    const index = carts.findIndex(el => el.id === cartItem.id);
+
+    if (index !== -1) {
+      setCarts(updateQuantity(productId, carts, "Add"));
     } else {
-      setCarts(prevState => ([...prevState, {...product, quantity: 1 }]))
+      setCarts(prevState => ([...prevState, { ...cartItem, quantity: 1 }]));
     }
     // showOrHideCart();
   }
 
-  const removeFromCart = (product: Product): void => {
-    setCarts(carts.filter(cart => cart.id !== product.id));
-    // setProducts(findAndUpdate(product, data.products, false))
+  const removeFromCart = (prodcutId: number): void => {
+    setCarts(carts.filter(cart => cart.id !== prodcutId));
   }
 
-  const incrementQuantity = (product: Product): void => {
-    setCarts(updateQuantity(product, carts, "Add"));
+  const incrementQuantity = (productId: number): void => {
+    setCarts(updateQuantity(productId, carts, "Add"));
   }
 
-  const decrementQuantity = (product: Product): void => {
-    if(product.quantity > 1) {
-      setCarts(updateQuantity(product, carts, "Subtract"));
+  const decrementQuantity = (productId: number, productQuantity: number): void => {
+    if(productQuantity > 1) {
+      setCarts(updateQuantity(productId, carts, "Subtract"));
     } else {
-      removeFromCart(product);
+      removeFromCart(productId);
     }
   }
 
   const quantityCount = (): number => {
     let count = 0;
-    carts.map(cart => {
+    carts.map(cart =>  {
       count += cart.quantity;
     });
     
@@ -66,8 +64,7 @@ const ProductList = (): JSX.Element => {
     setCurrency(e.target.value);
   }
 
-  console.log({carts});
-
+  console.log("================cats", carts);
   return (
     <>
       <div className="nav">
@@ -94,7 +91,6 @@ const ProductList = (): JSX.Element => {
           key={product.id}
           product={product}
           addToCart={addToCart}
-          removeFromCart={removeFromCart}
           currency={currency}
           />) : <span>Loading.....</span>
         }

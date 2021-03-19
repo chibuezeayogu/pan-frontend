@@ -8,6 +8,7 @@
   display: flex;
   align-content: flex-end;
   justify-content: flex-end;
+  z-index: 1;
 
   .cart-list {
     background: $whitesmoke;
@@ -49,7 +50,7 @@
     }
 
     &__body {
-      overflow: scroll;
+      overflow-y: scroll !important;
 
       .cart-item {
         display: flex;

@@ -12,5 +12,8 @@ export const LOAD_PRODUCTS = gql`
 `;
 
 
-// export const LOAD_CRRRENCY = gql`
-// `
+export const LOAD_CURRENCY = gql`
+  query {
+    currency
+  }
+`

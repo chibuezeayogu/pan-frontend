@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CartItem from "./CartItem";
 import { Product } from "../../types";
 import { CURRENCY } from "../../util/index";
@@ -11,25 +11,32 @@ const CartList = (
     showOrHideCart,
     removeFromCart,
     onChange,
-    currency
+    currency,
   }:{ 
     carts: Product[]; 
-    incrementQuantity: MouseEventHandler<HTMLButtonElement>; 
-    decrementQuantity: MouseEventHandler<HTMLButtonElement>; 
-    showOrHideCart: MouseEventHandler<HTMLButtonElement>; 
-    removeFromCart: MouseEventHandler<HTMLButtonElement>; 
-    onChange: MouseEventHandler<HTMLButtonElement>; 
-    currency: string
+    incrementQuantity: (id: number) => void; 
+    decrementQuantity: (id: number, quantity: number) => void; 
+    removeFromCart: (id: number) => void; 
+    showOrHideCart: () => void; 
+    onChange: (id: MouseEventHandler<HTMLButtonElement>) => void;
+    currency: string;
   }) :JSX.Element => {
 
-   const cartSubstotal = (): number => {
-     let subtotal = 0;
-     carts.map(cart => {
-       subtotal += (cart.quantity * cart.price);
-     })
+    const [cartSubTotal, setCartSubTotal] = useState<number>(0);
   
-     return subtotal;
+  useEffect(() => {
+    if(carts.length) {
+      calSubTotal(carts)
+      console.log("=======CarlistUseEffect");
     }
+  }, [carts]);
+
+  const calSubTotal = (carts: Product[]): void => {
+    const result = carts.map(cart => (cart.quantity * cart.price)).reduce((acc=0, cur)=> acc+cur);
+    return setCartSubTotal(result);
+  }
+
+
 
   return (
     <div className="modal">
@@ -54,22 +61,37 @@ const CartList = (
         </div>
         <div className="cart-list__body">
           {
-            carts.map((cart) =>(
-              <CartItem
-                key={cart.id}
-                cart={cart}
-                incrementQuantity={incrementQuantity}
-                decrementQuantity={decrementQuantity}
-                removeFromCart={removeFromCart}
-                currency={currency}
-              />
+            carts.map(({id, title, price, image_url, quantity }) =>(
+              // <CartItem
+              //   key={cart.id}
+              //   cart={cart}
+              //   incrementQuantity={incrementQuantity}
+              //   decrementQuantity={decrementQuantity}
+              //   removeFromCart={removeFromCart}
+              //   currency={currency}
+              // />
+              <div className="cart-item" key={id}>
+                <div className="cart-item__title">
+                  <span>{title}</span>
+                  <button onClick={()=> removeFromCart(id)} className="close">{"X"}</button>
+                </div>
+                <div className="cart-item__body">
+                  <div className="quantity-btn">
+                    <button onClick={()=> decrementQuantity(id, quantity)}>-</button>
+                    <span>{quantity}</span>
+                    <button onClick={() => incrementQuantity(id)}>+</button>
+                  </div>
+                  <span>{CURRENCY[currency]} {price}</span>
+                  <span><img src={image_url} alt={title}/></span>
+                </div>
+              </div>
             ))
           }
         </div>
         <div className="cart-list__footer">
           <div className="cart-total">
             <span>Subtotal</span>
-            <span>{CURRENCY[currency]}{cartSubstotal()}</span>
+            <span>{CURRENCY[currency]}{cartSubTotal}</span>
           </div>
             <button className="subscription">MAKE THIS A SUBSCRIPTION (SAVE 20%)</button>
             <button className="ckeckout">PROCCED TO CHECKOUT</button>

@@ -1,10 +1,9 @@
 
 export interface Product {
-  __typename:   string;
+  __typename?:   unknown;
   id:           number;
   image_url:    string;
   title:        string;
   price:        number;
-  quantity?:     number = 0;    
-  addedToCart?:  boolean = false;
+  quantity:     number = 0;    
 }
