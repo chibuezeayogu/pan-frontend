@@ -1,104 +1,100 @@
-import React, { useEffect, useState } from "react";
+import React, { SetStateAction } from "react";
+import { useQuery } from "@apollo/client";
 import CartItem from "./CartItem";
 import { Product } from "../../types";
-import { CURRENCY } from "../../util/index";
+import { LOAD_CURRENCY } from "../../graphQL/queries"
+import { css } from "@emotion/react";
+import ClipLoader from "react-spinners/ClipLoader";
 
-const CartList = (
-  {
-    carts,
-    incrementQuantity,
-    decrementQuantity,
-    showOrHideCart,
-    removeFromCart,
-    onChange,
-    currency,
-  }:{ 
-    carts: Product[]; 
-    incrementQuantity: (id: number) => void; 
-    decrementQuantity: (id: number, quantity: number) => void; 
-    removeFromCart: (id: number) => void; 
-    showOrHideCart: () => void; 
-    onChange: (id: MouseEventHandler<HTMLButtonElement>) => void;
-    currency: string;
-  }) :JSX.Element => {
+const override = css`
+  margin: 0 auto;
+  border-color: green;
+`;
 
-    const [cartSubTotal, setCartSubTotal] = useState<number>(0);
-  
-  useEffect(() => {
-    if(carts.length) {
-      calSubTotal(carts)
-      console.log("=======CarlistUseEffect");
-    }
-  }, [carts]);
+const CartList =({
+  cartItems,
+  incrementQuantity,
+  decrementQuantity,
+  removeFromCart,
+  currency,
+  setCurrency,
+  toggleCart,
+  setToggleCart
+} : {
+  cartItems: Product[];
+  incrementQuantity: (id: number) => void;
+  decrementQuantity: (id: number, quantity: number) => void;
+  removeFromCart: (id: number) => void;
+  setCurrency: React.Dispatch<SetStateAction<string>>;
+  currency: string;
+  toggleCart: boolean;
+  setToggleCart: React.Dispatch<SetStateAction<boolean>>;
+}): JSX.Element =>  {
 
-  const calSubTotal = (carts: Product[]): void => {
-    const result = carts.map(cart => (cart.quantity * cart.price)).reduce((acc=0, cur)=> acc+cur);
-    return setCartSubTotal(result);
+  const { data } = useQuery(LOAD_CURRENCY);
+
+  const cartSubTotal = () => {
+    if(!cartItems.length) return 0;
+    
+    return cartItems.map(cartItem => cartItem.price).reduce((acc, cur) => acc + cur);
   }
 
-
+  const onChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setCurrency(event.target.value);
+  };
 
   return (
     <div className="modal">
       <div className="cart-list">
         <div className="cart-list__header">
           <span>
-            <button 
+            <button
               className="header-btn"
-              onClick={showOrHideCart}>
-                &#60;
-              </button>
-            </span>
+              onClick={() => setToggleCart(!toggleCart)}>
+              &#62;
+            </button>
+          </span>
           <span className="header-text">Your Cart</span>
         </div>
         <div className="currency-options">
-          <select onBlur={onChange} onChange={onChange}value={currency}>
-            <option value="NGN">NGN</option>
-            <option value="USD">USD</option>
-            <option value="EUR">EUR</option>
-            <option value="CAD">CAD</option>
+          <select onBlur={onChange} onChange={onChange} value={currency}>
+            {data?.currency.map((curr: string) => (
+              <option value={curr} key={curr}>{curr}</option>
+            ))}
           </select>
         </div>
         <div className="cart-list__body">
-          {
-            carts.map(({id, title, price, image_url, quantity }) =>(
-              // <CartItem
-              //   key={cart.id}
-              //   cart={cart}
-              //   incrementQuantity={incrementQuantity}
-              //   decrementQuantity={decrementQuantity}
-              //   removeFromCart={removeFromCart}
-              //   currency={currency}
-              // />
-              <div className="cart-item" key={id}>
-                <div className="cart-item__title">
-                  <span>{title}</span>
-                  <button onClick={()=> removeFromCart(id)} className="close">{"X"}</button>
-                </div>
-                <div className="cart-item__body">
-                  <div className="quantity-btn">
-                    <button onClick={()=> decrementQuantity(id, quantity)}>-</button>
-                    <span>{quantity}</span>
-                    <button onClick={() => incrementQuantity(id)}>+</button>
-                  </div>
-                  <span>{CURRENCY[currency]} {price}</span>
-                  <span><img src={image_url} alt={title}/></span>
-                </div>
-              </div>
-            ))
-          }
+          { cartItems.length ? cartItems.map(cartItem => (
+            <CartItem
+              key={cartItem.id}
+              cartItem={cartItem}
+              incrementQuantity={incrementQuantity}
+              decrementQuantity={decrementQuantity}
+              removeFromCart={removeFromCart}
+              currency={currency}
+            />
+          )) : <span className="empty-cart">{'Your cart is empty'}</span>}
         </div>
         <div className="cart-list__footer">
           <div className="cart-total">
             <span>Subtotal</span>
-            <span>{CURRENCY[currency]}{cartSubTotal}</span>
+            <span>{currency} {
+                !Number.isNaN(cartSubTotal()) ? 
+                cartSubTotal(): 
+                <ClipLoader 
+                  color={'#ffffff'} 
+                  loading={Number.isNaN(cartSubTotal())} 
+                  css={override} 
+                  size={10} 
+                />
+            }</span>
           </div>
-            <button className="subscription">MAKE THIS A SUBSCRIPTION (SAVE 20%)</button>
-            <button className="ckeckout">PROCCED TO CHECKOUT</button>
+          <button className="subscription">MAKE THIS A SUBSCRIPTION (SAVE 20%)</button>
+          <button className="ckeckout">PROCCED TO CHECKOUT</button>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default CartList;

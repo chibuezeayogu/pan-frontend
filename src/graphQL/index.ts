@@ -1,4 +1,4 @@
-import { onError, ErrorResponse } from "@apollo/client/link/error";
+import { onError } from "@apollo/client/link/error";
 import {
   ApolloClient,
   InMemoryCache,

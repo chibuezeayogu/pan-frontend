@@ -13,24 +13,3 @@ export const updateQuantity = (productId: number, carts: Product[], value: strin
 
   return newProducts;
 }
-
-export const updateCartPrice = (carts: Product[], products: Product[]): Product[] => { 
-   carts.map(cart => {
-    const foundProduct = products.find(el => el.id === cart.id);
-    const price = foundProduct?.price
-    cart.price = price;
-    return cart;
-  });
-
-  return carts;
-}
-
-export const CURRENCY = {
-  EUR: "€",
-  USD: "$",
-  CAD: "$",
-  AUD: "$",
-  GBP: "£",
-  NGN: "₦",
-  RUB: "₽",
-}

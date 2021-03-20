@@ -1,70 +1,67 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useQuery } from "@apollo/client";
+import { css } from "@emotion/react";
+import BeatLoader from "react-spinners/BeatLoader";
 import ProductItem from "./ProductItem";
 import { Product }  from '../../types'
-import { updateQuantity, updateCartPrice } from "../../util/index"
-import { LOAD_PRODUCTS } from "../../graphQL/Queries"
+import { updateQuantity } from "../../util/index"
+import { LOAD_PRODUCTS } from "../../graphQL/queries"
 import CartList from "../cart/CartList";
+
+const override = css`
+  display: block;
+  border-color: red;
+  margin-top: 30%;
+`;
 
 const ProductList = (): JSX.Element => {
   const [currency, setCurrency] = useState<string>("NGN");
-  const { error, loading, data } = useQuery(LOAD_PRODUCTS, { variables: { currency: currency }, fetchPolicy: "no-cache"});
-  const [carts, setCarts] = useState<Product[]>([]);
+  const { loading, data } = useQuery(LOAD_PRODUCTS, { variables: { currency: currency }});
+  const [cartItems, setCartItems] = useState<Product[]>([]);
   const [toggleCart, setToggleCart] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (data) {
-      setCarts(updateCartPrice(carts, data.products));
-    }
-  }, [carts, data]);
-
-
  const addToCart = (productId: number): void => {
-    const cartItem = data.products.find(el => el.id == productId);
-    const index = carts.findIndex(el => el.id === cartItem.id);
+    const cartItem = data.products.find((el: Product) => el.id == productId);
+    const index = cartItems.findIndex(el => el.id === cartItem.id);
 
     if (index !== -1) {
-      setCarts(updateQuantity(productId, carts, "Add"));
+      setCartItems(updateQuantity(productId, cartItems, "Add"));
     } else {
-      setCarts(prevState => ([...prevState, { ...cartItem, quantity: 1 }]));
+      setCartItems(prevState => ([...prevState, { ...cartItem, quantity: 1 }]));
+      setToggleCart(!toggleCart);
     }
-    // showOrHideCart();
   }
 
-  const removeFromCart = (prodcutId: number): void => {
-    setCarts(carts.filter(cart => cart.id !== prodcutId));
+  const removeFromCart = (productId: number): void => {
+    setCartItems(cartItems.filter(cart => cart.id !== productId));
   }
 
   const incrementQuantity = (productId: number): void => {
-    setCarts(updateQuantity(productId, carts, "Add"));
+    setCartItems(updateQuantity(productId, cartItems, "Add"));
   }
 
   const decrementQuantity = (productId: number, productQuantity: number): void => {
     if(productQuantity > 1) {
-      setCarts(updateQuantity(productId, carts, "Subtract"));
+      setCartItems(updateQuantity(productId, cartItems, "Subtract"));
     } else {
       removeFromCart(productId);
     }
   }
 
   const quantityCount = (): number => {
-    let count = 0;
-    carts.map(cart =>  {
-      count += cart.quantity;
-    });
+    if(!cartItems.length) return 0;
     
-    return count;
+    return cartItems.map(cartItem => cartItem.quantity).reduce((acc, cur) => acc + cur);
   }
 
-  const showOrHideCart = (): void => {
-    setToggleCart(!toggleCart);
+
+  const calCartItemsPrice = (): Product[] => {
+    return cartItems.map(cartItem => {
+      const inCart = data?.products.find((el: Product) => el.id === cartItem.id);
+      return { ...cartItem, price: inCart?.price * cartItem.quantity }
+    });
   }
 
-  const onChange = (e) => {
-    setCurrency(e.target.value);
-  }
-
-  console.log("================cats", carts);
   return (
     <>
       <div className="nav">
@@ -77,34 +74,41 @@ const ProductList = (): JSX.Element => {
           <span>Account</span>
           <span
             className="cart-total__count"
-            onClick={showOrHideCart}
+            onClick={() => setToggleCart(!toggleCart)}
             role="button"
-            onKeyDown={showOrHideCart}
+            onKeyDown={() => setToggleCart(!toggleCart)}
             // eslint-disable-next-line jsx-a11y/tabindex-no-positive
             tabIndex={1}>
             <i className="fas fa-shopping-cart">&nbsp;&nbsp;{quantityCount()}</i></span>
         </div>
       </div>
       <div className="product-list">
-        { !loading ? data.products.map((product) => 
+        { loading ? 
+        <BeatLoader 
+          color={'#343D34'} 
+          loading={loading} 
+          css={override}  
+        /> :
+        data.products.map((product: Product) => 
           <ProductItem
           key={product.id}
           product={product}
           addToCart={addToCart}
           currency={currency}
-          />) : <span>Loading.....</span>
+          />)
         }
       </div>
       {
         toggleCart &&
         <CartList
-          carts={carts}
+          cartItems={calCartItemsPrice()}
           incrementQuantity={incrementQuantity}
           decrementQuantity={decrementQuantity}
-          showOrHideCart={showOrHideCart}
           removeFromCart={removeFromCart}
-          onChange={onChange}
           currency={currency}
+          setCurrency={setCurrency}
+          setToggleCart={setToggleCart}
+          toggleCart={toggleCart}
         /> 
       }
     </>

@@ -4,7 +4,7 @@
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: space-around;
-  width: 100%;
+  width: 80%;
   margin: 0 auto;
 
   .product-item {
@@ -12,6 +12,10 @@
     margin: 60px 0;
     width: 30%;
     height: 70%;
+
+    @media (max-width: 768px) {
+      width: 50%;
+    }
 
     &__price  {
       align-items: center;
@@ -27,7 +31,7 @@
 
       img { 
         height: 15vh;
-        width: 10vw;
+        width: 15vw;
       }
     }
 
@@ -36,7 +40,7 @@
 
       button {
         height: 30px;
-        width: 120px;
+        width: 150px;
         background-color: $darkslategray;
         color: $white;
         border: unset;
