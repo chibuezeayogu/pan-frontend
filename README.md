@@ -29,7 +29,7 @@ Pan Frontend is a shopping cart with minimal functionality. It allows a user to 
 - Webpack: Webpack is used to bundle modules with dependencies and run mundane tasks. Its main purpose is to bundle JavaScript files for usage in a browser.
 - Apollo Client: Apollo Client is a comprehensive state management library for JavaScript that enables you to manage both local and remote data with GraphQL.
 
-##Author
+## Author
 ```
 Chibueze Ayogu
 ```
