@@ -1,40 +1,54 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Product } from "../../types";
-import { CURRENCY } from "../../util/index";
-import { useQuery } from "@apollo/client";
-import { LOAD_CURRENCY } from "./../../graphQL/Queries";
+import { css } from "@emotion/react";
+import ClipLoader from "react-spinners/ClipLoader";
+
+const override = css`
+  margin: 0 auto;
+  border-color: green;
+`;
 
 const CartItem = (
   {
-  cart,
+  cartItem,
   incrementQuantity,
   decrementQuantity,
   removeFromCart,
   currency
-  }:{ 
-  cart: Product; 
-  incrementQuantity: (id: number) => void; 
-  decrementQuantity: (id: number, quantity: number) => void; 
-  removeFromCart: (id: number) => void; 
-  currency: string  
-}): JSX.Element => {
-  return (
-    <div className="cart-item">
-      <div className="cart-item__title">
-        <span>{cart.title}</span>
-        <button onClick={()=> removeFromCart(cart.id)} className="close">{"X"}</button>
-      </div>
-      <div className="cart-item__body">
-        <div className="quantity-btn">
-          <button onClick={()=> decrementQuantity(cart.id, cart.quantity)}>-</button>
-          <span>{cart.quantity}</span>
-          <button onClick={() => incrementQuantity(cart.id)}>+</button>
-        </div>
-        <span>{CURRENCY[currency]}{ cart.price} {cart.price}</span>
-        <span><img src={cart.image_url} alt={cart.title}/></span>
-      </div>
+} : { 
+  cartItem: Product,
+  incrementQuantity: (id: number) => void,
+  decrementQuantity: (id: number, quantity: number) => void,
+  removeFromCart: (id: number) => void,
+  currency: string
+}): JSX.Element => (
+  <div className="cart-item" key={cartItem.id}>
+    <div className="cart-item__title">
+      <span>{cartItem.title}</span>
+      <button onClick={()=> removeFromCart(cartItem.id)} className="close">{"X"}</button>
     </div>
-  )
-}
+    <div className="cart-item__body">
+      <div className="quantity-btn">
+        <button onClick={()=> decrementQuantity(cartItem.id, cartItem.quantity)}>-</button>
+        <span>{cartItem.quantity}</span>
+        <button onClick={() => incrementQuantity(cartItem.id)}>+</button>
+      </div>
+      <span>
+        {`${currency} `} 
+        {
+          !Number.isNaN(cartItem.price) ? 
+            cartItem.price : 
+            <ClipLoader 
+              color={'#ffffff'} 
+              loading={Number.isNaN(cartItem.price)} 
+              css={override} 
+              size={10} 
+            />
+        }
+      </span>
+      <span><img src={cartItem.image_url} alt={cartItem.title}/></span>
+    </div>
+  </div>
+)
 
 export default CartItem;

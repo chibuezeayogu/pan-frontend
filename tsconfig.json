@@ -9,7 +9,7 @@
     "jsx": "react",
     "module": "CommonJS",
     "noImplicitAny": true,
-    "outDir": "./build/",
+    "outDir": "./src/",
     "preserveConstEnums": true,
     "removeComments": true,
     "sourceMap": true,

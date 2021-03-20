@@ -6,7 +6,7 @@ const config: webpack.Configuration = {
   entry: "./src/index.tsx",
   target: "web",
   output: {
-    path: path.resolve(__dirname, "build"),
+    path: path.resolve(__dirname, "src"),
     filename: "bundle.js"
   },
   module: {
@@ -27,6 +27,9 @@ const config: webpack.Configuration = {
       },
       {
         test: /\.scss$/,
+        include: [
+          path.resolve(__dirname, 'src', 'assests', 'scss')
+      ],
         use: [ "style-loader", "css-loader", "sass-loader" ]
       }
     ],
@@ -35,7 +38,7 @@ const config: webpack.Configuration = {
     new ForkTsCheckerWebpackPlugin({
       async: false,
       eslint: {
-        files: ".src/**/*",
+        files: './src/**/*.{ts,tsx,js,jsx}',
       }
     })
   ],
@@ -43,7 +46,7 @@ const config: webpack.Configuration = {
     extensions: [".tsx", ".ts", ".js"]
   },
   devServer: {
-    contentBase: path.join(__dirname, "build"),
+    contentBase: path.join(__dirname, "src"),
     compress: true,
     port: 4000,
   },
